@@ -10,27 +10,25 @@ import { v4 as uuidv4 } from 'uuid'
 })
 export class DashboardComponent implements OnInit{
 
-  taskObj : Task  = new Task()
-  taskArr : Task[] = []
-  addTaskValue : string = ''
-  editTaskValue: string = ''
-
-  constructor(private curdService: CrudService){ }
+  addTaskValue: string = '';
+  editTaskValue: string = '';
+  completedTask: boolean = false;
+  taskObj: Task = new Task();
+  taskArr: Task[] = [];
 
   ngOnInit(): void {
-    this.addTaskValue = ''
-    this.editTaskValue = ''
-    this.taskObj = new Task()
-    this.taskArr = []
-    this.getAllTasks()
+    this.loadTasksFromLocalStorage();
   }
 
-  getAllTasks(){
-    this.curdService.getAllTask().subscribe(res => {
-      this.taskArr = res
-    }, err =>{
-      console.log("unable to get list of tasks")
-    })
+  loadTasksFromLocalStorage() {
+    const storedTasks = localStorage.getItem('tasks');
+    if (storedTasks) {
+      this.taskArr = JSON.parse(storedTasks);
+    }
+  }
+
+  saveTasksToLocalStorage() {
+    localStorage.setItem('tasks', JSON.stringify(this.taskArr));
   }
 
   addTask() {
@@ -39,54 +37,48 @@ export class DashboardComponent implements OnInit{
     newTask.task_name = this.addTaskValue;
     newTask.is_completed = false;
 
-    this.curdService.addTask(newTask).subscribe(
-      (res) => {
-        this.ngOnInit();
-        this.addTaskValue = '';
-      },
-      (err) => {
-        console.log("error", err);
-      }
-    );
+    this.taskArr.push(newTask);
+    this.saveTasksToLocalStorage();
+
+    this.addTaskValue = '';
+  }
+
+  editTask() {
+    const taskIndex = this.taskArr.findIndex(item => item.id === this.taskObj.id);
+    if (taskIndex !== -1) {
+      this.taskArr[taskIndex].task_name = this.editTaskValue;
+      this.saveTasksToLocalStorage();
+    }
+
+    this.editTaskValue = '';
+  }
+
+  deleteTask(task: Task) {
+    this.taskArr = this.taskArr.filter(item => item.id !== task.id);
+    this.saveTasksToLocalStorage();
+  }
+
+  call(oldTask: Task) {
+    this.taskObj = oldTask;
+    this.editTaskValue = oldTask.task_name;
   }
 
 
-  editTask(){
-    this.taskObj.task_name = this.editTaskValue
-    this.curdService.editTask(this.taskObj).subscribe(res => {
-      this.ngOnInit()
-    }, err => {
-      console.log("error: Failed to update the task")
-    })
+  call2(oldTask: Task) {
+    this.taskObj = oldTask;
+    this.completedTask = oldTask.is_completed;
+    this.isCompleted(oldTask)
   }
 
-  deleteTask(task: Task){
-    this.curdService.deleteTask(task).subscribe(res => {
-      this.ngOnInit()
-    }, err =>{
-      console.log("error: Failed to delete the task")
-    })
-  }
-
-  call(oldTask: Task){
-    this.taskObj = oldTask
-    this.editTaskValue = oldTask.task_name
-  }
   isCompleted(task: Task) {
-    task = {
-      ...task,
-      is_completed: !task.is_completed
-    };
+    const taskIndex = this.taskArr.findIndex(item => item.id === task.id);
+    if (taskIndex !== -1) {
+      this.taskArr[taskIndex].is_completed = !task.is_completed;
+      localStorage.setItem('tasks', JSON.stringify(this.taskArr)); // Serialize and save to localStorage
+    }
+  }
 
-    this.curdService.is_Completed(task).subscribe(
-      (res) => {
-        this.ngOnInit();
-      },
-      (err) => {
-        console.log("error: Failed to update the task");
-      }
-    );
-}
+
 
 
 }

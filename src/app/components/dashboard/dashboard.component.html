@@ -43,7 +43,7 @@
                     </label>
                   </div>
 
-                  <div class="col-md-1.5 ms-2" (click)="isCompleted(task)">
+                  <div class="col-md-1.5 ms-2"  (click)="call2(task)">
                     <input type="checkbox" class="btn-check visually-hidden" id="complet" autocomplete="off">
                     <label class="btn {{ task.is_completed === true ? 'btn-success' : 'btn-outline-success' }} col-md-1.5" for="complet">
                       <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
