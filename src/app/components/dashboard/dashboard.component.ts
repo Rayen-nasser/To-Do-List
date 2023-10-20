@@ -1,6 +1,7 @@
 import { OnInit ,Component } from '@angular/core';
 import { Task } from 'src/app/model/task';
 import { CrudService } from 'src/app/service/crud.service';
+import { v4 as uuidv4 } from 'uuid'
 
 @Component({
   selector: 'app-dashboard',
@@ -32,15 +33,23 @@ export class DashboardComponent implements OnInit{
     })
   }
 
-  addTask(){
-    this.taskObj.task_name = this.addTaskValue
-    this.curdService.addTask(this.taskObj).subscribe(res => {
-      this.ngOnInit()
-      this.addTaskValue = ''
-    }, err => {
-      console.log("error",err)
-    })
+  addTask() {
+    const newTask = new Task();
+    newTask.id = uuidv4();
+    newTask.task_name = this.addTaskValue;
+    newTask.is_completed = false;
+
+    this.curdService.addTask(newTask).subscribe(
+      (res) => {
+        this.ngOnInit();
+        this.addTaskValue = '';
+      },
+      (err) => {
+        console.log("error", err);
+      }
+    );
   }
+
 
   editTask(){
     this.taskObj.task_name = this.editTaskValue
@@ -63,4 +72,21 @@ export class DashboardComponent implements OnInit{
     this.taskObj = oldTask
     this.editTaskValue = oldTask.task_name
   }
+  isCompleted(task: Task) {
+    task = {
+      ...task,
+      is_completed: !task.is_completed
+    };
+
+    this.curdService.is_Completed(task).subscribe(
+      (res) => {
+        this.ngOnInit();
+      },
+      (err) => {
+        console.log("error: Failed to update the task");
+      }
+    );
+}
+
+
 }

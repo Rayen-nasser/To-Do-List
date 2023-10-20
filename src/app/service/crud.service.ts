@@ -28,4 +28,9 @@ export class CrudService {
     return  this.http.delete<Task>(this.serviceURL+'/'+task.id)
    }
 
+   is_Completed(task: Task): Observable<Task> {
+    console.log(task);  // This logs the task data
+    return this.http.put<Task>(this.serviceURL + '/' + task.id, task);
+}
+
 }

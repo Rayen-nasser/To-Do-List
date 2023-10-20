@@ -1,4 +1,5 @@
 export class Task {
-  id : number = 0;
+  id: string = '';
   task_name: string = '';
+  is_completed: boolean = false;
 }
